@@ -18,8 +18,12 @@ section = st.sidebar.radio("Navigati catre:",
 
 if section == "Introducere":
     st.markdown("""
-    motivatia si obiectivul proiectului
-    ***
+    ## Motivația și obiectivul proiectului
+
+    Acest proiect are ca scop analiza vânzărilor de jocuri video pe baza unui set de date real, pentru a evidenția tipare relevante legate de platforme, genuri, regiuni și performanța comercială a titlurilor lansate de-a lungul timpului.
+
+    Motivația proiectului pornește de la interesul pentru industria gaming-ului și de la dorința de a aplica, într-un context practic, concepte de **preprocesare a datelor**, **analiză exploratorie** și **vizualizare interactivă**.
+
     """)
 
     if "uploaded_data" not in st.session_state:

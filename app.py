@@ -4,6 +4,8 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from PIL import Image
+import plotly.express as px
+import seaborn as sb
 
 image = Image.open('ps4-console.png')
 
@@ -95,7 +97,7 @@ elif section == "Preprocesare":
     if nan_df["Numar NaN"].sum() == 0:
         st.success("Nu exista valori lipsa in dataset")
     else:
-        st.warning("Exita valori lipsa. Acestea trebuie tratate inainte de modelare.")
+        st.warning("Exista valori lipsa. Acestea trebuie tratate inainte de modelare.")
         st.markdown("***")
 
         st.markdown("#### Eliminarea randurilor/coloanelor")
@@ -112,7 +114,8 @@ elif section == "Preprocesare":
             if selected_axis == "Rand":
                 st.session_state["processed_df"] = st.session_state["processed_df"].dropna(subset=[col_to_drop])
             else:
-                st.session_state["processed_df"] = st.session_state["processed_df"].drop(columns=[col_to_drop], errors="ignore")
+                st.session_state["processed_df"] = st.session_state["processed_df"].drop(columns=[col_to_drop],
+                                                                                         errors="ignore")
             st.success("Datele au fost sterse cu succes!")
             st.rerun()
 
@@ -147,9 +150,9 @@ elif section == "Preprocesare":
         col_na_cat = [col for col in col_cat if df[col].isnull().sum() > 0]
 
         selected_col_cat = st.multiselect("Alegeti coloanele categoriale:",
-                                      options=col_na_cat)
+                                          options=col_na_cat)
         selected_method_cat = st.selectbox("Alegeti metoda de impuare:",
-                                       options=["Necunoscut", "Cea mai frecventa valoare (mod)"])
+                                           options=["Necunoscut", "Cea mai frecventa valoare (mod)"])
         st.info("Pentru a nu distorsiona realitatea, recomandam selectarea optiunii ***Necunoscut***")
         if st.button("Aplicati imputarea categoriala aleasa"):
             for col in selected_col_cat:
@@ -170,7 +173,6 @@ elif section == "Preprocesare":
 
     selected_outliers_method = st.selectbox("Alegeti metoda de analiza",
                                             options=["IQR (Interquartile Range)", "Boxplot"])
-
 
     numerical_cols = df.select_dtypes(include=[np.number]).columns
     categorical_cols = df.select_dtypes(include=["object"]).columns
@@ -217,7 +219,7 @@ elif section == "Preprocesare":
             "deoarece unele pot fi observatii valide si relevante pentru analiza"
         )
     elif selected_outliers_method == "Boxplot":
-    # Boxplot individual
+        # Boxplot individual
         st.markdown("#### Generarea boxplot-urilor pentru variabilele numerice")
 
         selected_box_col = st.selectbox("Alegeti o variabila numerica:", numerical_cols)
@@ -239,5 +241,117 @@ elif section == "Preprocesare":
         mime="text/csv"
     )
 
-elif section == "EDA":
-    st.markdown("EDA")
+elif section == "Analiza exploratorie (EDA)":
+    st.markdown("""
+    ***
+    ## Analiza Exploratorie a Datelor""")
+
+    if "eda_df" not in st.session_state:
+        st.session_state["eda_df"] = st.session_state["processed_df"].copy()
+    df = st.session_state["eda_df"]
+
+    df["release_date"] = pd.to_datetime(df["release_date"], errors="coerce")
+    df["release_year"] = df["release_date"].dt.year
+
+    st.subheader("1. Care sunt cele mai bine vandute titluri la nivel global?")
+    top_n = st.slider("Selectati numarul de jocuri:", min_value=5, max_value=20, value=10)
+
+    top_games = df.sort_values(by="total_sales", ascending=False).head(top_n)
+
+    fig1 = px.bar(
+        top_games,
+        x="title",
+        y="total_sales",
+        color="console",
+        title=f"Top {top_n} jocuri dupa vanzarile globale (mil. copii)",
+        labels={"title": "Titlul jocului", "total_sales": "Vanzari totale (mil.)", "console": "Consola"},
+        hover_data=["publisher", "genre"]
+    )
+    fig1.update_layout(xaxis_tickangle=-45)
+    st.plotly_chart(fig1, use_container_width=True)
+
+    st.markdown("***")
+    st.subheader("2. Ce an a avut cele mai multe vanzari? Este industria in crestere?")
+
+    sales_by_year = df[df["release_year"] <= 2024].groupby("release_year")["total_sales"].sum().reset_index()
+
+    fig2 = px.line(
+        sales_by_year,
+        x="release_year",
+        y="total_sales",
+        markers=True,
+        title="Vanzarile totale globale pe ani",
+        labels={"release_year": "Anul lansarii", "total_sales": "Vanzarile globale (mil.)"}
+    )
+    fig2.update_traces(line_color="#2ca02c")
+    st.plotly_chart(fig2, use_container_width=True)
+
+    best_year = sales_by_year.loc[sales_by_year["total_sales"].idxmax()]
+    st.info(
+        f"Anul cu cele mai mari vanzari a fost **{int(best_year["release_year"])}**, generand aproximativ **{best_year["total_sales"]:.2f} milioane** de copii vandute.")
+
+    st.markdown("***")
+    st.subheader("3. Exista console care se specializeaza pe anumite genuri?")
+
+    top_consoles = df["console"].value_counts().head(10).index.tolist()
+    selected_consoles = st.multiselect("Selectati consolele pentru a le compara",
+                                       options=top_consoles,
+                                       default=top_consoles[:5])
+    df_filtered_consoles = df[df["console"].isin(selected_consoles)]
+    console_genre_matrix = pd.crosstab(
+        index=df_filtered_consoles["console"],
+        columns=df_filtered_consoles["genre"],
+        values=df_filtered_consoles["total_sales"],
+        aggfunc="sum"
+    ).fillna(0)
+
+    fig3, ax3 = plt.subplots(figsize=(12, 6))
+
+    sb.heatmap(console_genre_matrix, annot=True, fmt=".1f", cmap="YlGnBu", linewidths=.5, ax=ax3)
+    ax3.set_title("Heatmap: Vanzari totale (mil.) pe console si genuri")
+    ax3.set_xlabel("Genul jocului")
+    ax3.set_ylabel("Consola")
+    st.pyplot(fig3)
+
+    st.markdown("***")
+    st.subheader("4. Ce titluri sunt populare intr-o regiune, dar nu si in alta?")
+
+    regiuni_dict = {
+        "na_sales": "America de Nord",
+        "pal_sales": "Europa & Africa",
+        "jp_sales": "Japonia",
+        "other_sales": "Restul lumii"
+    }
+
+    col1, col2 = st.columns(2)
+    with col1:
+        regiunea_x = st.selectbox("Alegeti prima regiune (axa X):",
+                                  options=list(regiuni_dict.keys()),
+                                  format_func=lambda x: regiuni_dict[x])
+    with col2:
+        regiunea_y = st.selectbox("Alegeti a doua regiune (axa Y):",
+                                  options=list(regiuni_dict.keys()),
+                                  format_func=lambda x: regiuni_dict[x])
+
+    prag_vanzari = st.slider("Afisati doar jocurile cu vanzari de peste (mil. copii):", min_value=0.1, max_value=9.8, value=1.0, step=0.1)
+
+    df_regional = df[(df[regiunea_x] >= prag_vanzari) | (df[regiunea_y] >= prag_vanzari)]
+
+    if df_regional.empty:
+        st.warning("Nu exista jocuri care sa indeplineasca acest prag de vanzari pentru regiunile selectate.")
+    else:
+        fig4 = px.scatter(
+            df_regional,
+            x=regiunea_x,
+            y=regiunea_y,
+            color="genre",
+            hover_name="title",
+            hover_data=["console", "total_sales"],
+            title=f"Comparatie: {regiuni_dict[regiunea_x]} vs. {regiuni_dict[regiunea_y]}",
+            labels={regiunea_x: f"Vanzari {regiuni_dict[regiunea_x]}", regiunea_y: f"Vanzari {regiuni_dict[regiunea_y]}"}
+        )
+
+        max_val = max(df_regional[regiunea_x].max(), df_regional[regiunea_y].max())
+        fig4.add_shape(type="line", line=dict(dash="dash", color="gray"), x0=0, y0=0, x1=max_val, y1=max_val)
+
+        st.plotly_chart(fig4, use_container_width=True)

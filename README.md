@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎮 Analiza Vânzărilor de Jocuri Video
+# 🎮 Analiza Vânzărilor de Jocuri Video 🎮
 
 **Aplicație web interactivă pentru analiza, vizualizarea și modelarea datelor VGChartz**
 
@@ -14,20 +14,21 @@
 
 ---
 
-## 📑 Cuprins
+<h2 align="center">📑 Cuprins 📑</h2>
 
-- [📖 Descriere](#-descriere)
-- [📊 Setul de date](#-setul-de-date)
-- [✨ Funcționalități](#-funcționalități)
-- [🗂️ Structura proiectului](#️-structura-proiectului)
-- [🧰 Tehnologii](#-tehnologii)
-- [🚀 Instalare și rulare](#-instalare-și-rulare)
-- [🧭 Flux recomandat în aplicație](#-flux-recomandat-în-aplicație)
-- [💡 Observații](#-observații)
+- [📖 Descriere](#descriere)
+- [📊 Setul de date](#setul-de-date)
+- [✨ Funcționalități](#functionalitati)
+- [🗂️ Structura proiectului](#structura-proiectului)
+- [🧰 Tehnologii](#tehnologii)
+- [🚀 Instalare și rulare](#instalare-si-rulare)
+- [🧭 Flux recomandat în aplicație](#flux-recomandat)
+- [💡 Observații](#observatii)
 
 ---
 
-## 📖 Descriere
+<a id="descriere"></a>
+<h2 align="center">📖 Descriere 📖</h2>
 
 Acest proiect este o **aplicație web interactivă** dezvoltată în **Python** cu **Streamlit**, pentru analiza setului de date **VGChartz** (`video-games-sales.csv`).
 
@@ -35,7 +36,8 @@ Aplicația acoperă un flux complet de data science: de la încărcarea și cur�
 
 ---
 
-## 📊 Setul de date
+<a id="setul-de-date"></a>
+<h2 align="center">📊 Setul de date 📊</h2>
 
 📁 Fișierul folosit în proiect: `video-games-sales.csv`
 
@@ -49,7 +51,8 @@ Exemple de coloane relevante:
 
 ---
 
-## ✨ Funcționalități
+<a id="functionalitati"></a>
+<h2 align="center">✨ Funcționalități ✨</h2>
 
 ### 1️⃣ 📥 Introducere și încărcare date
 
@@ -145,7 +148,8 @@ Exemple de coloane relevante:
 
 ---
 
-## 🗂️ Structura proiectului
+<a id="structura-proiectului"></a>
+<h2 align="center">🗂️ Structura proiectului 🗂️</h2>
 
 ```text
 📦 video-games-sales-analysis
@@ -157,7 +161,8 @@ Exemple de coloane relevante:
 
 ---
 
-## 🧰 Tehnologii
+<a id="tehnologii"></a>
+<h2 align="center">🧰 Tehnologii 🧰</h2>
 
 | | Bibliotecă | Rol |
 |---|---|---|
@@ -172,7 +177,8 @@ Exemple de coloane relevante:
 
 ---
 
-## 🚀 Instalare și rulare
+<a id="instalare-si-rulare"></a>
+<h2 align="center">🚀 Instalare și rulare 🚀</h2>
 
 **1️⃣ (Opțional) Creează și activează un mediu virtual**
 
@@ -198,7 +204,8 @@ streamlit run app.py
 
 ---
 
-## 🧭 Flux recomandat în aplicație
+<a id="flux-recomandat"></a>
+<h2 align="center">🧭 Flux recomandat în aplicație 🧭</h2>
 
 1. 📥 **Introducere:** încarcă CSV-ul
 2. 🧹 **Preprocesare:** tratează NaN/outliers și exportă dacă este nevoie
@@ -208,7 +215,8 @@ streamlit run app.py
 
 ---
 
-## 💡 Observații
+<a id="observatii"></a>
+<h2 align="center">💡 Observații 💡</h2>
 
 - 💾 Aplicația folosește `st.session_state`, deci datele procesate sunt păstrate pe parcursul navigării între secțiuni.
 - ✅ Pentru rezultate ML relevante, este recomandat să finalizezi preprocesarea înainte de modelare.
